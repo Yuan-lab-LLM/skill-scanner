@@ -33,16 +33,18 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Compute image tags
+        id: vars
+        run: echo "date_tag=v$(date -u +'%Y.%-m.%-d')" >> "$GITHUB_OUTPUT"
+
       - name: Extract Docker metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=tag
-            type=sha
-            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=${{ steps.vars.outputs.date_tag }}
+            type=raw,value=latest
 
       - name: Build and push image
         uses: docker/build-push-action@v6
