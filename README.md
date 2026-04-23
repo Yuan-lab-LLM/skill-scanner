@@ -52,7 +52,27 @@ Build locally:
 docker build -t skill-scanner:latest .
 ```
 
+Build multi-arch locally (publishes Linux images for both ARM64 and AMD64):
+
+```bash
+# one-time setup (works on macOS/Linux with Docker Buildx)
+docker buildx create --name multiarch --use
+
+# build and load Linux ARM64 image into local Docker for quick testing
+docker buildx build --platform linux/arm64 -t skill-scanner:arm64 --load .
+
+# build and push a multi-arch manifest image to GHCR
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  -t ghcr.io/<owner>/<repo>:latest \
+  --push .
+```
+
 GitHub Actions can also publish the image to GHCR through [.github/workflows/ghcr-image.yml](.github/workflows/ghcr-image.yml).
+
+When published as a multi-arch image, Linux runtimes automatically pull the matching variant:
+- `linux/amd64` on x86_64 nodes
+- `linux/arm64` on ARM64 nodes (not limited to macOS)
 
 ### Runtime Environment
 
